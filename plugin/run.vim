@@ -2,8 +2,13 @@ if !exists('g:run_key')
   let g:run_key = ',r'
 end
 
+let g:ruby_command = "ruby"
+if exists("$HOME/.rvm/bin/ruby")
+  let g:ruby_command = "$HOME/.rvm/bin/ruby"
+end
+
 let g:run_commands = {
-      \  "rb": "ruby %",
+      \  "rb": g:ruby_command . " %",
       \  "py": "python %",
       \  "js": "node %",
       \  "coffee": "coffee %",
