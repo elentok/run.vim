@@ -24,13 +24,31 @@ func! RunCurrentFile()
     let exec_cmd = "cucumber"
   elseif has_key(g:run_commands, extension)
     let exec_cmd = g:run_commands[extension]
+
+  " executable file
+  elseif IsExecutable(filename)
+    let exec_cmd = "./" . filename
   endif
 
-  exec "silent !clear"
-  exec "silent !echo '================================='"
-  silent exec "!echo '$ " . expand(exec_cmd) . "'"
-  exec "silent !echo '================================='"
+
+  let cmd = "clear && "
+    \ . "echo '=================================' && "
+    \ . "echo '$ " . expand(exec_cmd) . "' && "
+    \ . "echo '================================='"
+
+  exec "silent !(" . cmd . ")"
   exec "!" . exec_cmd
+endfunc
+
+func! IsExecutable(filename)
+  let perm = getfperm(a:filename)
+  "rwxrwxrwx
+  "012345678
+  if perm[2] == 'x' || perm[5] == 'x' || perm[8] == 'x'
+    return 1
+  else
+    return 0
+  endif
 endfunc
 
 exec 'noremap ' . g:run_key . ' :w<cr>:call RunCurrentFile()<cr>'
