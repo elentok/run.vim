@@ -2,27 +2,32 @@ if !exists('g:run_key')
   let g:run_key = ',r'
 end
 
+if !exists('g:run_with_vimux')
+  let g:run_with_vimux = 0
+end
+
 let g:ruby_command = "ruby"
 if exists("$HOME/.rvm/bin/ruby")
   let g:ruby_command = "$HOME/.rvm/bin/ruby"
 end
 
 let g:run_commands = {
-      \  "rb": g:ruby_command . " %",
-      \  "py": "python %",
-      \  "js": "node %",
-      \  "coffee": "coffee %",
-      \  "md": "bluecloth % > /tmp/markdown-output.html && google-chrome /tmp/markdown-output.html"
+      \  "rb": g:ruby_command . " {file}",
+      \  "py": "python {file}",
+      \  "js": "node {file}",
+      \  "coffee": "coffee {file}",
+      \  "md": "bluecloth {file} > /tmp/markdown-output.html && google-chrome /tmp/markdown-output.html"
       \}
 
 func! RunCurrentFile()
+  let fullpath = expand("%")
   let filename = expand("%:t")
   let extension = tolower(expand("%:e"))
-  let exec_cmd = "%"
+  let exec_cmd = '{file}'
 
   " rspec
   if filename =~ "_spec.rb"
-    let exec_cmd = "rspec --drb -f documentation -c %"
+    let exec_cmd = "rspec --drb -f documentation -c {file}"
 
   " cucumber features
   elseif filename =~ "\.feature$"
@@ -31,18 +36,26 @@ func! RunCurrentFile()
     let exec_cmd = g:run_commands[extension]
 
   " executable file
-  elseif IsExecutable(filename)
-    let exec_cmd = "./" . filename
+  elseif IsExecutable(fullpath)
+    let exec_cmd = "./" . fullpath
   endif
 
+  let exec_cmd = substitute(exec_cmd, '{file}', fullpath, 'g')
 
   let cmd = "clear && "
     \ . "echo '=================================' && "
     \ . "echo '$ " . expand(exec_cmd) . "' && "
     \ . "echo '================================='"
 
-  exec "silent !(" . cmd . ")"
-  exec "!" . exec_cmd
+  if g:run_with_vimux
+    call VimuxRunCommand("clear\n" . exec_cmd)
+  else
+    exec "silent !(" . cmd . ")"
+    exec "!" . exec_cmd
+  end
+
+  "let exec_cmd = substitute(exec_cmd, "%", expand("%"), 'g')
+  "call conque_term#open(expand(exec_cmd), ['below split', 'resize 20'], 0)
 endfunc
 
 func! IsExecutable(filename)
