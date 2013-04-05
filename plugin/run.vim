@@ -25,8 +25,12 @@ func! RunCurrentFile()
   let extension = tolower(expand("%:e"))
   let exec_cmd = '{file}'
 
+  if filename =~ ".vim$"
+    exec "source " . fullpath
+    return
+
   " rspec
-  if filename =~ "_spec.rb"
+  elseif filename =~ "_spec.rb"
     let exec_cmd = "rspec --drb -f documentation -c {file}"
 
   " cucumber features
