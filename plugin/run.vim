@@ -1,5 +1,5 @@
 if !exists('g:run_key')
-  let g:run_key = ',r'
+  let g:run_key = '<Leader>r'
 end
 
 if !exists('g:run_with_vimux')
@@ -16,7 +16,8 @@ let g:run_commands = {
       \  "py": "python {file}",
       \  "js": "node {file}",
       \  "coffee": "coffee {file}",
-      \  "md": "bluecloth {file} > /tmp/markdown-output.html && google-chrome /tmp/markdown-output.html"
+      \  "md": "bluecloth {file} > /tmp/markdown-output.html && google-chrome /tmp/markdown-output.html",
+      \  "applescript": "osascript {file}"
       \}
 
 func! RunCurrentFile()
